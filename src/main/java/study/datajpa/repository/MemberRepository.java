@@ -1,5 +1,6 @@
 package study.datajpa.repository;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,4 +39,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	// DTO 를 반환할때는 이렇게 해줘야함
 	@Query("select new study.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
 	List<MemberDto> findMemberDto();
+
+	// 파라미터를 컬랙션으로 바인딩하는거 / In 절로 받아옴
+	@Query("select m from Member m where m.username in :names")
+	List<Member> findByNames(@Param("names") Collection<String> names);
 }
