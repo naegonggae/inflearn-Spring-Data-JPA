@@ -2,6 +2,8 @@ package study.datajpa.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import study.datajpa.entity.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -19,4 +21,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	// Top3 = 처음부터 3개만 가져옴
 
 	// 필드이름 바꼈을때 에러로 잡아준다는 장점이 있다.
+
+	// @Query 를 주석처리해도 네임드 쿼리가 실행되는데 그때는 JPA 동작 우선순위가 설정된 엔티티에 점찍고 메서드명으로 된 네임드쿼리를 먼저 찾고 없으면 다른걸함
+	@Query(name = "Member.findByUsername")
+	List<Member> namedQuery(@Param("username") String username);
 }

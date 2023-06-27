@@ -103,4 +103,16 @@ class MemberRepositoryTest {
 			System.out.println("member = " + member);
 		}
 	}
+
+	@Test
+	void testNamedQuery() {
+		Member m1 = new Member("AAA", 10);
+		Member m2 = new Member("BBB", 20);
+		memberRepository.save(m1);
+		memberRepository.save(m2);
+
+		List<Member> members = memberRepository.namedQuery("AAA");
+		Member member = members.get(0);
+		assertThat(member).isEqualTo(m1);
+	}
 }
