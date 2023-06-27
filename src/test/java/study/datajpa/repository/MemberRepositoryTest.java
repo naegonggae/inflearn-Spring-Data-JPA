@@ -172,4 +172,21 @@ class MemberRepositoryTest {
 			System.out.println("member = " + member);
 		}
 	}
+
+	@Test
+	void returnType() {
+		Member m1 = new Member("AAA", 10);
+		Member m2 = new Member("AAA", 20); // 이거도 "AAA" 였으면 단건조회에서 예외터짐
+		memberRepository.save(m1);
+		memberRepository.save(m2);
+
+		List<Member> result1 = memberRepository.findListByUsername("CCC");
+		System.out.println("result1.size() = " + result1.size()); // size = 0
+		// 이거는 값이 없어도 null 이 안되고 빈 배열을 출력해준다. 그래서 if 로 null 조회 안해도됨
+		Member result2 = memberRepository.findMemberByUsername("CCC");
+		System.out.println("result2 = " + result2); // null
+		Optional<Member> result3 = memberRepository.findOptionalByUsername("CCC");
+		System.out.println("result3 = " + result3); // Optional.empty / 값이 비어있으면 .orElse 로 넘기면된다.
+		// 결과가 없을수도 있고 있을수도 있으면 optional 을 써라
+	}
 }
