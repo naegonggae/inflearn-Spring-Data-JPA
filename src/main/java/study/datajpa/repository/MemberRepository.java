@@ -25,4 +25,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	// @Query 를 주석처리해도 네임드 쿼리가 실행되는데 그때는 JPA 동작 우선순위가 설정된 엔티티에 점찍고 메서드명으로 된 네임드쿼리를 먼저 찾고 없으면 다른걸함
 	@Query(name = "Member.findByUsername")
 	List<Member> namedQuery(@Param("username") String username);
+
+	// 메서드에 JPQL 바로 꽂아넣기 / 아주 막강한 기술, 실무에서 사용됨 / 장점으로 필드명 오류시 컴파일 오류로 잡아줌
+	// 1. 간단한 쿼리는 일반 메서드로 만들고 2. 복잡한 정적쿼리면 이렇게 만들자 3. 동적쿼리는 쿼리 DSL 로...
+	@Query("select m from Member m where m.username = :username and m.age = :age")
+	List<Member> findUser(@Param("username") String username, @Param("age") int age);
 }
