@@ -21,6 +21,10 @@ class MemberRepositoryTest {
 
 	@Test
 	void testMember() {
+
+		System.out.println("memberRepository = " + memberRepository.getClass());
+		// memberRepository = class jdk.proxy2.$Proxy121
+		// 개발자가 구현체를 만들지 않고 스프링 data JPA 가 JpaRepository extends 된걸 확인하고 구현클래스를 프록시객체로 만들어서 주입시켜줌
 		Member member = new Member("memberA");
 		Member savedMember = memberRepository.save(member);
 
