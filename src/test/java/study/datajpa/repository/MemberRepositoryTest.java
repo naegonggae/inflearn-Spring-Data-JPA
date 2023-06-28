@@ -315,4 +315,9 @@ class MemberRepositoryTest {
 		//when
 		List<Member> result = memberRepository.findLockByUsername("member1"); // where 조건에 for update 뜸
 	}
+
+	@Test
+	void callCustom() {
+		List<Member> result = memberRepository.findMemberCustom();
+	}
 }
