@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
@@ -57,4 +58,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 			countQuery = "select count(m) from Member m") // 토탈카운트 쿼리를 날릴때는 조인을 할 필요가 없기 때문에 카운트전용 별도의 쿼리를 작성
 	Page<Member> findByAge(int age, Pageable pageable); // 간단하게 3건만 넘기고 싶다하면 페이징안하고 Top3해도 된다.
 //	Slice<Member> findByAge(int age, Pageable pageable);
+
+	@Modifying(clearAutomatically = true)
+	@Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+	int bulkAge(@Param("age") int age);
 }

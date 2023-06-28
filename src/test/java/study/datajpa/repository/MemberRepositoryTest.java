@@ -3,6 +3,8 @@ package study.datajpa.repository;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +30,7 @@ class MemberRepositoryTest {
 
 	@Autowired MemberRepository memberRepository;
 	@Autowired TeamRepository teamRepository;
+	@PersistenceContext EntityManager em;
 
 	@Test
 	void testMember() {
@@ -233,5 +236,26 @@ class MemberRepositoryTest {
 		assertThat(page.isFirst()).isTrue(); // 첫페이지 인지
 		assertThat(page.hasNext()).isTrue(); // 다음페이지 인지
 
+	}
+
+	@Test
+	void bulkUpdate() {
+		//given
+		memberRepository.save(new Member("member1", 10));
+		memberRepository.save(new Member("member2", 19));
+		Member member3 = memberRepository.save(new Member("member3", 20));
+		memberRepository.save(new Member("member4", 21));
+		memberRepository.save(new Member("member5", 40));
+
+		//when
+		// 심지어 JPQL 실행되기전에 이전것들은 flush 해줌
+		int resultCount = memberRepository.bulkAge(20); // 영속성컨텍스트를 무시하고 바로 DB 에 값을 때려버림, 여기 영속성컨텍스트는 그 사실을 모름
+//		em.flush();
+//		em.clear();
+		Member member = memberRepository.findById(3l).get();
+
+		//then
+		assertThat(resultCount).isEqualTo(3);
+		assertThat(member.getAge()).isEqualTo(21);
 	}
 }

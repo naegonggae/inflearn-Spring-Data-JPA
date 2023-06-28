@@ -3,7 +3,9 @@ package study.datajpa.repository;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import study.datajpa.entity.Member;
 class MemberJpaRepositoryTest {
 
 	@Autowired MemberJpaRepository memberJpaRepository;
+	@Autowired EntityManager em;
 
 	@Test
 	void testMember() {
@@ -115,6 +118,26 @@ class MemberJpaRepositoryTest {
 		assertThat(members.size()).isEqualTo(4);
 		assertThat(totalCount).isEqualTo(6);
 
+	}
+
+	@Test
+	void bulkUpdate() {
+		//given
+		memberJpaRepository.save(new Member("member1", 10));
+		memberJpaRepository.save(new Member("member2", 19));
+		Member member3 = memberJpaRepository.save(new Member("member3", 20));
+		memberJpaRepository.save(new Member("member4", 21));
+		memberJpaRepository.save(new Member("member5", 40));
+		
+		//when
+		int resultCount = memberJpaRepository.bulkAgePlus(20); // 영속성때문에 바로 안나옴 DB 에는 다 반영되어있음
+		em.flush();
+		em.clear();
+		Member member = memberJpaRepository.findById(3l).get();
+
+		//then
+		assertThat(resultCount).isEqualTo(3);
+		assertThat(member.getAge()).isEqualTo(21);
 	}
 
 }
