@@ -55,4 +55,21 @@ public class MemberJpaRepository {
 				.getResultList();
 	}
 
+	// 페이징
+	// 주어진 age 인 member 를 이름기준 내림차순으로 정렬
+	public List<Member> findByPage(int age, int offset, int limit) {
+		return em.createQuery("select m from Member m where m.age=:age order by m.username desc")
+				.setParameter("age", age)
+				.setFirstResult(offset)
+				.setMaxResults(limit)
+				.getResultList();
+	}
+
+	// 페이징 카운트
+	public long totalCount(int age) {
+		return em.createQuery("select count(m) from Member m where m.age = :age", Long.class) // sorting 들어갈 필요없어서 안함
+				.setParameter("age", age)
+				.getSingleResult();
+	}
+
 }
