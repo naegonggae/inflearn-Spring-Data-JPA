@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -8,8 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
@@ -85,4 +89,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	// 네임드 쿼리도 가능 페치조인이
 	@EntityGraph("Member.all")
 	List<Member> findFetchJoinByUsername(@Param("username") String username);
+
+	// 이게 읽기전용조건 준다고 성능이 어마어마하게 좋아지지는 않아 / 트래픽이 엄청 많거나 복잡한 쿼리거나 그런 몇몇의 곳에 성능테스트해보고 넣은 거임
+	// 그리고 조회성능을 중요시한 메서드라면 이미 캐시로 보완을 했을 것임 이걸로 뭔가 엄청난 이득보려하지마
+	@QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+	Member findReadOnlyByUsername(String username); // 읽기전용으로 쓴다고 최적화를 해버림 변경이되도 감지안함 update 안날림
+
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	List<Member> findLockByUsername(String username);
 }

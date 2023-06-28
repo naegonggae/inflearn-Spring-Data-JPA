@@ -285,6 +285,34 @@ class MemberRepositoryTest {
 			System.out.println("member = " + member.getUsername());
 			System.out.println("member.team.getClass() = " + member.getTeam().getClass());
 			System.out.println("member.team = " + member.getTeam().getName());
-		} }
+		}
+	}
 
+	@Test
+	void queryHint() {
+		//given
+		Member member1 = new Member("member1", 10);
+		memberRepository.save(member1);
+		em.flush();
+		em.clear();
+
+		//when
+//		Member findMember = memberRepository.findById(member1.getId()).get(); // 실무에서 Optional 을 get 으로 빼면 안된다.
+		Member findMember = memberRepository.findReadOnlyByUsername("member1"); // update 가 안나감
+		findMember.setUsername("member2");
+
+		em.flush();
+	}
+
+	@Test
+	void lock() {
+		//given
+		Member member1 = new Member("member1", 10);
+		memberRepository.save(member1);
+		em.flush();
+		em.clear();
+
+		//when
+		List<Member> result = memberRepository.findLockByUsername("member1"); // where 조건에 for update 뜸
+	}
 }
