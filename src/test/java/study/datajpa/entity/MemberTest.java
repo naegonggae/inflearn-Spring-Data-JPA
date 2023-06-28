@@ -72,4 +72,10 @@ class MemberTest {
 		System.out.println("findMember.getLastModifiedBy() = " + findMember.getLastModifiedBy());
 	}
 
+	@Test
+	void save() {
+		Member member = new Member("memberA");
+		memberRepository.save(member);
+	}
+
 }
