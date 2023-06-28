@@ -258,4 +258,33 @@ class MemberRepositoryTest {
 		assertThat(resultCount).isEqualTo(3);
 		assertThat(member.getAge()).isEqualTo(21);
 	}
+
+	@Test
+	public void findMemberLazy() throws Exception {
+		//given
+		//member1 -> teamA
+		//member2 -> teamB
+		Team teamA = new Team("teamA");
+		Team teamB = new Team("teamB");
+		teamRepository.save(teamA);
+		teamRepository.save(teamB);
+		memberRepository.save(new Member("member1", 10, teamA));
+		memberRepository.save(new Member("member2", 20, teamB));
+		em.flush();
+		em.clear();
+
+		//when
+//		List<Member> members = memberRepository.findAll(); //m + t + t // t 호출전까지 프록시 유지
+//		List<Member> members = memberRepository.findMemberFetchJoin(); // 페치조인 한방
+//		List<Member> members = memberRepository.findAll(); // 페치조인 한방
+//		List<Member> members = memberRepository.findFetchByUsername("member1"); // 메서드쿼리 - 페치조인 한방
+		List<Member> members = memberRepository.findFetchJoinByUsername("member1"); // 네임드 쿼리 - 페치조인 한방
+
+		//then
+		for (Member member : members) {
+			System.out.println("member = " + member.getUsername());
+			System.out.println("member.team.getClass() = " + member.getTeam().getClass());
+			System.out.println("member.team = " + member.getTeam().getName());
+		} }
+
 }

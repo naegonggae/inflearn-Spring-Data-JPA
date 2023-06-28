@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -62,4 +63,26 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	@Modifying(clearAutomatically = true)
 	@Query("update Member m set m.age = m.age + 1 where m.age >= :age")
 	int bulkAge(@Param("age") int age);
+
+	// JPQL 로 페치조인 구현
+	@Query("select m from Member m left join fetch m.team") //** 아니면 요거픽
+	List<Member> findMemberFetchJoin();
+
+	// 엔티티그래프로 페치조인 구현
+	@Override
+	@EntityGraph(attributePaths = "team")
+	List<Member> findAll();
+
+	// 위의 짬뽕 구현 = 페치조인
+	@EntityGraph(attributePaths = "team")
+	@Query("select m from Member m") // 조인 뺀 쿼리
+	List<Member> findMemberEntityGraph();
+
+	// 메서드명으로 커스텀 할때도 엔티티그래프사용해서 페치조인할 수 있음
+	@EntityGraph(attributePaths = "team") //** 간다한게 하고 싶을때 요거 픽
+	List<Member> findFetchByUsername(@Param("username") String username);
+
+	// 네임드 쿼리도 가능 페치조인이
+	@EntityGraph("Member.all")
+	List<Member> findFetchJoinByUsername(@Param("username") String username);
 }
