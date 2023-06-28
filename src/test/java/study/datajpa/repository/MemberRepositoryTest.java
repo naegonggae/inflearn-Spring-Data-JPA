@@ -10,6 +10,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
@@ -188,5 +193,45 @@ class MemberRepositoryTest {
 		Optional<Member> result3 = memberRepository.findOptionalByUsername("CCC");
 		System.out.println("result3 = " + result3); // Optional.empty / 값이 비어있으면 .orElse 로 넘기면된다.
 		// 결과가 없을수도 있고 있을수도 있으면 optional 을 써라
+	}
+
+	@Test
+	void testPaging() {
+		//given
+		memberRepository.save(new Member("member1", 10));
+		memberRepository.save(new Member("member2", 10));
+		memberRepository.save(new Member("member3", 10));
+		memberRepository.save(new Member("member4", 10));
+		memberRepository.save(new Member("member5", 10));
+		memberRepository.save(new Member("member6", 10));
+
+		int age = 10;
+		PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Direction.DESC, "username"));
+		// sorting 조건도 너무 복잡해지면 위와 같이 하지말고 레포지토리에 쿼리를 작성하자
+
+		//when
+		Page<Member> page = memberRepository.findByAge(age, pageRequest);
+//		Slice<Member> page = memberRepository.findByAge(age, pageRequest); //size 에서 하나더 가져옴, 토탈카운트를 지원하지 않음
+		// 그냥 List 로 설정해서 몇개 가져오고 sorting 할 수 있음
+
+		// 페이징할때 엔티티를 외부에 노출하면 안된다. 그래서 DTO 로 잡아야하는데 쉽게 변환하는 방법은
+		Page<MemberDto> toMap = page.map(
+				member -> new MemberDto(member.getId(), member.getUsername(), null));
+
+		//then
+		List<Member> content = page.getContent(); // 페이징한것들 뽑아서 옴
+		long totalElements = page.getTotalElements(); // 토탈 카운트 지원
+		for (Member member : content) {
+			System.out.println("member = " + member);
+		}
+		System.out.println("totalElements = " + totalElements);
+
+		assertThat(content.size()).isEqualTo(3);
+		assertThat(page.getTotalElements()).isEqualTo(6);
+		assertThat(page.getNumber()).isEqualTo(0);
+		assertThat(page.getTotalPages()).isEqualTo(2);
+		assertThat(page.isFirst()).isTrue(); // 첫페이지 인지
+		assertThat(page.hasNext()).isTrue(); // 다음페이지 인지
+
 	}
 }

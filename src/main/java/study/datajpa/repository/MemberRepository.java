@@ -3,6 +3,9 @@ package study.datajpa.repository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,4 +51,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	List<Member> findListByUsername(String username); // 컬랙션
 	Member findMemberByUsername(String username); // 단건
 	Optional<Member> findOptionalByUsername(String username); // optional 단건
+
+	// DB 가 단순하면 Page 에서 해주는 토탈카운트 믿고 가면되는데 복잡해지면 이렇게 쿼리를 분리해줘야한다. / 성능테스트해서 느리다하면 고치자
+	@Query(value = "select m from Member m left join m.team t",
+			countQuery = "select count(m) from Member m") // 토탈카운트 쿼리를 날릴때는 조인을 할 필요가 없기 때문에 카운트전용 별도의 쿼리를 작성
+	Page<Member> findByAge(int age, Pageable pageable); // 간단하게 3건만 넘기고 싶다하면 페이징안하고 Top3해도 된다.
+//	Slice<Member> findByAge(int age, Pageable pageable);
 }
